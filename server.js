@@ -24,11 +24,11 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function getAIReply(userMessage) {
 
-try {  
+try {
 
-    const model = genAI.getGenerativeModel({  
-        model: 'gemini-1.5-flash'  
-    });  
+    const model = genAI.getGenerativeModel({
+        model: 'gemini-1.5-flash'
+    });
 
     const prompt = `
 
@@ -38,34 +38,28 @@ Reply professionally in Hindi + English.
 
 Services:
 
-Website Development
-
-SEO
-
-Google Ads
-
-Meta Ads
-
-WhatsApp Marketing
-
-AI Automation
-
+- Website Development
+- SEO
+- Google Ads
+- Meta Ads
+- WhatsApp Marketing
+- AI Automation
 
 Customer Message:
 ${userMessage}
 `;
 
-const result = await model.generateContent(prompt);  
+    const result = await model.generateContent(prompt);
 
-    const response = await result.response;  
+    const response = await result.response;
 
-    return response.text();  
+    return response.text();
 
-} catch (error) {  
+} catch (error) {
 
-    console.log(error);  
+    console.log('Gemini Error:', error);
 
-    return 'Sorry, AI response abhi available nahi hai.';  
+    return 'Sorry, AI response abhi available nahi hai.';
 }
 
 }
@@ -76,27 +70,30 @@ const result = await model.generateContent(prompt);
 
 async function sendWhatsAppMessage(to, message) {
 
-try {  
+try {
 
-    await axios.post(  
-        `https://waapi.app/api/v1/instances/${process.env.WAAPI_INSTANCE_ID}/client/action/send-message`,  
-        {  
-            chatId: to,  
-            message: message  
-        },  
-        {  
-            headers: {  
-                Authorization: `Bearer ${process.env.WAAPI_TOKEN}`,  
-                'Content-Type': 'application/json'  
-            }  
-        }  
-    );  
+    const response = await axios.post(
+        `https://waapi.app/api/v1/instances/${process.env.WAAPI_INSTANCE_ID}/client/action/send-message`,
+        {
+            chatId: to,
+            message: message
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${process.env.WAAPI_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        }
+    );
 
-    console.log('Message Sent');  
+    console.log('Message Sent:', response.data);
 
-} catch (error) {  
+} catch (error) {
 
-    console.log(error.response?.data || error.message);  
+    console.log(
+        'Send Message Error:',
+        error.response?.data || error.message
+    );
 }
 
 }
@@ -107,42 +104,65 @@ try {
 
 app.post('/webhook', async (req, res) => {
 
-try {  
+try {
 
-    console.log(JSON.stringify(req.body, null, 2));  
+    console.log(
+        'Webhook Data:',
+        JSON.stringify(req.body, null, 2)
+    );
 
-    const data = req.body;  
+    const data = req.body;
 
-    const sender =  
-        data.from ||  
-        data.chatId;  
+    // Only process message events
+    if (data.event !== 'message') {
 
-    const message =  
-        data.message?.text ||  
-        data.text ||  
-        '';  
+        return res.sendStatus(200);
+    }
 
-    if (!sender || !message) {  
+    // Get sender
+    const sender =
+        data.data?.message?._data?.from ||
+        data.from ||
+        data.chatId;
 
-        return res.sendStatus(200);  
-    }  
+    // Get message text
+    const message =
+        data.data?.message?._data?.body ||
+        data.message?.text ||
+        data.text ||
+        '';
 
-    console.log('Sender:', sender);  
-    console.log('Message:', message);  
+    if (!sender || !message) {
 
-    // AI Reply  
-    const aiReply = await getAIReply(message);  
+        console.log('No sender or message');
 
-    // Send Reply  
-    await sendWhatsAppMessage(sender, aiReply);  
+        return res.sendStatus(200);
+    }
 
-    res.sendStatus(200);  
+    console.log('Sender:', sender);
+    console.log('Message:', message);
 
-} catch (error) {  
+    // ==========================================
+    // AI Reply
+    // ==========================================
 
-    console.log(error);  
+    const aiReply = await getAIReply(message);
 
-    res.sendStatus(500);  
+    console.log('AI Reply:', aiReply);
+
+    // ==========================================
+    // Send WhatsApp Reply
+    // ==========================================
+
+    await sendWhatsAppMessage(sender, aiReply);
+
+    return res.sendStatus(200);
+
+} catch (error) {
+
+    console.log('Webhook Error:', error);
+
+    return res.sendStatus(500);
 }
 
 });
@@ -166,4 +186,3 @@ app.listen(PORT, () => {
 console.log(`Server running on port ${PORT}`);
 
 });
-Pura update karke de y
