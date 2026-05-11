@@ -24,41 +24,50 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function getAIReply(userMessage) {
 
-    try {
+try {  
 
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-1.5-flash'
-        });
+    const model = genAI.getGenerativeModel({  
+        model: 'gemini-1.5-flash'  
+    });  
 
-        const prompt = `
+    const prompt = `
+
 You are Webnestic Tech Up AI Assistant.
 
 Reply professionally in Hindi + English.
 
 Services:
-- Website Development
-- SEO
-- Google Ads
-- Meta Ads
-- WhatsApp Marketing
-- AI Automation
+
+Website Development
+
+SEO
+
+Google Ads
+
+Meta Ads
+
+WhatsApp Marketing
+
+AI Automation
+
 
 Customer Message:
 ${userMessage}
 `;
 
-        const result = await model.generateContent(prompt);
+const result = await model.generateContent(prompt);  
 
-        const response = await result.response;
+    const response = await result.response;  
 
-        return response.text();
+    return response.text();  
 
-    } catch (error) {
+} catch (error) {  
 
-        console.log(error);
+    console.log(error);  
 
-        return 'Sorry, AI response abhi available nahi hai.';
-    }
+    return 'Sorry, AI response abhi available nahi hai.';  
+}
+
 }
 
 // ==========================================
@@ -67,28 +76,29 @@ ${userMessage}
 
 async function sendWhatsAppMessage(to, message) {
 
-    try {
+try {  
 
-        await axios.post(
-            `https://waapi.app/api/v1/instances/${process.env.WAAPI_INSTANCE_ID}/client/action/send-message`,
-            {
-                chatId: to,
-                message: message
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${process.env.WAAPI_TOKEN}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
+    await axios.post(  
+        `https://waapi.app/api/v1/instances/${process.env.WAAPI_INSTANCE_ID}/client/action/send-message`,  
+        {  
+            chatId: to,  
+            message: message  
+        },  
+        {  
+            headers: {  
+                Authorization: `Bearer ${process.env.WAAPI_TOKEN}`,  
+                'Content-Type': 'application/json'  
+            }  
+        }  
+    );  
 
-        console.log('Message Sent');
+    console.log('Message Sent');  
 
-    } catch (error) {
+} catch (error) {  
 
-        console.log(error.response?.data || error.message);
-    }
+    console.log(error.response?.data || error.message);  
+}
+
 }
 
 // ==========================================
@@ -97,43 +107,44 @@ async function sendWhatsAppMessage(to, message) {
 
 app.post('/webhook', async (req, res) => {
 
-    try {
+try {  
 
-        console.log(JSON.stringify(req.body, null, 2));
+    console.log(JSON.stringify(req.body, null, 2));  
 
-        const data = req.body;
+    const data = req.body;  
 
-        const sender =
-            data.from ||
-            data.chatId;
+    const sender =  
+        data.from ||  
+        data.chatId;  
 
-        const message =
-            data.message?.text ||
-            data.text ||
-            '';
+    const message =  
+        data.message?.text ||  
+        data.text ||  
+        '';  
 
-        if (!sender || !message) {
+    if (!sender || !message) {  
 
-            return res.sendStatus(200);
-        }
+        return res.sendStatus(200);  
+    }  
 
-        console.log('Sender:', sender);
-        console.log('Message:', message);
+    console.log('Sender:', sender);  
+    console.log('Message:', message);  
 
-        // AI Reply
-        const aiReply = await getAIReply(message);
+    // AI Reply  
+    const aiReply = await getAIReply(message);  
 
-        // Send Reply
-        await sendWhatsAppMessage(sender, aiReply);
+    // Send Reply  
+    await sendWhatsAppMessage(sender, aiReply);  
 
-        res.sendStatus(200);
+    res.sendStatus(200);  
 
-    } catch (error) {
+} catch (error) {  
 
-        console.log(error);
+    console.log(error);  
 
-        res.sendStatus(500);
-    }
+    res.sendStatus(500);  
+}
+
 });
 
 // ==========================================
@@ -142,7 +153,8 @@ app.post('/webhook', async (req, res) => {
 
 app.get('/', (req, res) => {
 
-    res.send('Waapi Gemini AI Bot Running 🚀');
+res.send('Waapi Gemini AI Bot Running 🚀');
+
 });
 
 // ==========================================
@@ -151,5 +163,7 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
 
-    console.log(`Server running on port ${PORT}`);
+console.log(`Server running on port ${PORT}`);
+
 });
+Pura update karke de y
