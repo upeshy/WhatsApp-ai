@@ -28,7 +28,7 @@ async function getAIReply(userMessage) {
 try {
 
     const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash-latest'
+    model: 'gemini-pro'
 });
 
     const prompt = `
