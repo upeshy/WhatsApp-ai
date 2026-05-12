@@ -155,7 +155,10 @@ try {
     // Send WhatsApp Reply
     // ==========================================
 
-    await sendWhatsAppMessage(sender, aiReply);
+    await sendWhatsAppMessage(
+   '919473549700@c.us',
+   aiReply
+);
 
     return res.sendStatus(200);
 
